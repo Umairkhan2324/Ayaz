@@ -2,10 +2,25 @@
 import sys
 import warnings
 import getpass
+import os
 from datetime import datetime
 from typing import Dict, Optional
+from dotenv import load_dotenv
 
 from ayaz.crew import Ayaz
+
+# Load environment variables
+load_dotenv()
+
+# Get Watson configurations
+MODEL = os.getenv('MODEL')
+WATSONX_URL = os.getenv('WATSONX_URL')
+WATSONX_APIKEY = os.getenv('WATSONX_APIKEY')
+WATSONX_PROJECT_ID = os.getenv('WATSONX_PROJECT_ID')
+
+# Validate required environment variables
+if not all([MODEL, WATSONX_URL, WATSONX_APIKEY, WATSONX_PROJECT_ID]):
+    raise ValueError("Missing required Watson environment variables in .env file")
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
@@ -63,11 +78,16 @@ def run(credentials: Optional[Dict[str, str]] = None, action: Optional[str] = No
         'current_year': str(datetime.now().year),
         'action': action,
         'user_email': credentials['email'],
-        'auth_token': credentials['auth_token']
+        'auth_token': credentials['auth_token'],
+        'model': MODEL,
+        'watsonx_url': WATSONX_URL,
+        'watsonx_apikey': WATSONX_APIKEY,
+        'watsonx_project_id': WATSONX_PROJECT_ID
     }
     
     print("\n=== Starting Workflow ===")
     print(f"Processing request: {action}")
+    print(f"Using Watson model: {MODEL}")
     
     try:
         result = Ayaz().crew().kickoff(inputs=inputs)
@@ -117,11 +137,16 @@ def test():
     inputs = {
         "action": action,
         "user_email": credentials['email'],
-        "auth_token": credentials['auth_token']
+        "auth_token": credentials['auth_token'],
+        "model": MODEL
     }
     
     try:
-        Ayaz().crew().test(n_iterations=int(sys.argv[1]), openai_model_name=sys.argv[2], inputs=inputs)
+        Ayaz().crew().test(
+            n_iterations=int(sys.argv[1]), 
+            openai_model_name=MODEL,  # Use the model from .env
+            inputs=inputs
+        )
     except Exception as e:
         raise Exception(f"An error occurred while testing the crew: {e}")
 

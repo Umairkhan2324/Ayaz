@@ -1,5 +1,20 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Get Watson configurations from environment variables
+MODEL = os.getenv('MODEL')
+WATSONX_URL = os.getenv('WATSONX_URL')
+WATSONX_APIKEY = os.getenv('WATSONX_APIKEY')
+WATSONX_PROJECT_ID = os.getenv('WATSONX_PROJECT_ID')
+
+# Validate required environment variables
+if not all([MODEL, WATSONX_URL, WATSONX_APIKEY, WATSONX_PROJECT_ID]):
+	raise ValueError("Missing required Watson environment variables in .env file")
 
 # If you want to run a snippet of code before or after the crew starts, 
 # you can use the @before_kickoff and @after_kickoff decorators
@@ -15,41 +30,55 @@ class Ayaz():
 	agents_config = 'config/agents.yaml'
 	tasks_config = 'config/tasks.yaml'
 
+	def get_watson_config(self):
+		"""Returns Watson configuration for agents"""
+		return {
+			'llm_model': MODEL,
+			'watsonx_url': WATSONX_URL,
+			'watsonx_apikey': WATSONX_APIKEY,
+			'watsonx_project_id': WATSONX_PROJECT_ID
+		}
+
 	# If you would like to add tools to your agents, you can learn more about it here:
 	# https://docs.crewai.com/concepts/agents#agent-tools
 	@agent
 	def supervisor_agent(self) -> Agent:
 		return Agent(
 			config=self.agents_config['Supervisor_agent'],
-			verbose=True
+			verbose=True,
+			**self.get_watson_config()
 		)
 
 	@agent
 	def email_processor(self) -> Agent:
 		return Agent(
 			config=self.agents_config['email_processor'],
-			verbose=True
+			verbose=True,
+			**self.get_watson_config()
 		)
 
 	@agent
 	def calendar_manager(self) -> Agent:
 		return Agent(
 			config=self.agents_config['calendar_manager'],
-			verbose=True
+			verbose=True,
+			**self.get_watson_config()
 		)
 
 	@agent
 	def document_manager(self) -> Agent:
 		return Agent(
 			config=self.agents_config['document_manager'],
-			verbose=True
+			verbose=True,
+			**self.get_watson_config()
 		)
 
 	@agent
 	def spreadsheet_manager(self) -> Agent:
 		return Agent(
 			config=self.agents_config['spreadsheet_manager'],
-			verbose=True
+			verbose=True,
+			**self.get_watson_config()
 		)
 
 	# To learn more about structured task outputs, 
@@ -96,5 +125,5 @@ class Ayaz():
 			tasks=self.tasks, # Automatically created by the @task decorator
 			process=Process.sequential,
 			verbose=True,
-			# process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
+			**self.get_watson_config()
 		)
