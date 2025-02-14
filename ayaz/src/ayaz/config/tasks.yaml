@@ -1,0 +1,57 @@
+orchestrate_workflow:
+  description: >
+    Interpret the user's request (the {Action}) and decide the necessary steps
+    for successful completion. Identify which agents need to be involved,
+    in what sequence, and how they should be invoked. Oversee the entire
+    process, ensuring that each agent performs its task at the right time
+    and that the outcome meets the user's requirements.
+  expected_output: >
+    A comprehensive plan or set of instructions detailing which tasks to run
+    and which agents to invoke, including any relevant parameters or data. 
+    The final output should confirm that all required actions have been
+    completed and provide any relevant follow-up information to the user.
+  agent: Supervisor_agent
+
+process_email:
+  description: >
+    Process and analyze email content. 
+    Look for any meeting details such as date, time, participants, 
+    or relevant links. Summarize the main points of the conversation 
+    and any key decisions or follow-up actions.
+  expected_output: >
+    A concise summary outlining the extracted meeting details, 
+    including date/time, participants, and any identified tasks 
+    or decisions that need to be tracked.
+  agent: email_processor
+  
+schedule_meeting:
+  description: >
+    Schedule a calendar event based on extracted meeting details such
+    as date, time, participants, and location. Ensure there are no
+    conflicts with existing events and send out invitations or
+    notifications to all relevant attendees.
+  expected_output: >
+    A confirmation of the created calendar event containing the
+    date, time, location, and list of participants, along with
+    any relevant attachments or links.
+  agent: calendar_manager
+
+generate_document:
+  description: >
+    Generate a meeting document using the designated template, incorporating
+    key information such as date, time, participants, and the main
+    agenda points or discussion topics.
+  expected_output: >
+    The unique document ID and a link to the created document,
+    ensuring it is accessible to all relevant stakeholders.
+  agent: document_manager
+
+update_spreadsheet:
+  description: >
+    Log all pertinent meeting details in the assigned spreadsheet. This
+    includes the date, time, participants, decisions made, and any tasks
+    or action items identified during the meeting.
+  expected_output: >
+    A confirmation that the spreadsheet was successfully updated, along
+    with a reference to any newly added or modified rows and cells.
+  agent: spreadsheet_manager
