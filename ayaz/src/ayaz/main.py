@@ -18,8 +18,8 @@ def run():
     Run the crew.
     """
     inputs = {
-        'topic': 'AI LLMs',
-        'current_year': str(datetime.now().year)
+        'current_year': str(datetime.now().year),
+        'actions': sys.argv[3]
     }
     
     try:
@@ -33,7 +33,7 @@ def train():
     Train the crew for a given number of iterations.
     """
     inputs = {
-        "topic": "AI LLMs"
+        "actions": sys.argv[3]
     }
     try:
         Ayaz().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
@@ -46,7 +46,7 @@ def replay():
     Replay the crew execution from a specific task.
     """
     try:
-        Ayaz().crew().replay(task_id=sys.argv[1])
+        Ayaz().crew().replay(task_id=sys.argv[1], actions=sys.argv[2])
 
     except Exception as e:
         raise Exception(f"An error occurred while replaying the crew: {e}")
@@ -56,7 +56,7 @@ def test():
     Test the crew execution and returns the results.
     """
     inputs = {
-        "topic": "AI LLMs"
+        "actions": sys.argv[3]
     }
     try:
         Ayaz().crew().test(n_iterations=int(sys.argv[1]), openai_model_name=sys.argv[2], inputs=inputs)
