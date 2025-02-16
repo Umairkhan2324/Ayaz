@@ -1,4 +1,4 @@
-Supervisor_agent:
+supervisor_agent:
   role: >
     Supervisor Agent
   goal: >

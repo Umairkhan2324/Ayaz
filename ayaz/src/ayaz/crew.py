@@ -44,7 +44,7 @@ class Ayaz():
 	@agent
 	def supervisor_agent(self) -> Agent:
 		return Agent(
-			config=self.agents_config['Supervisor_agent'],
+			config=self.agents_config['supervisor_agent'],
 			verbose=True,
 			**self.get_watson_config()
 		)
@@ -124,6 +124,7 @@ class Ayaz():
 			agents=self.agents, # Automatically created by the @agent decorator
 			tasks=self.tasks, # Automatically created by the @task decorator
 			process=Process.sequential,
+			planning=True,
 			verbose=True,
 			**self.get_watson_config()
 		)

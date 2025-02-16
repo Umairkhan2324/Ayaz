@@ -10,7 +10,7 @@ orchestrate_workflow:
     and which agents to invoke, including any relevant parameters or data. 
     The final output should confirm that all required actions have been
     completed and provide any relevant follow-up information to the user.
-  agent: Supervisor_agent
+  agent: supervisor_agent
 
 process_email:
   description: >
