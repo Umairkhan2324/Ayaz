@@ -46,8 +46,10 @@ class Ayaz():
 		return Agent(
 			config=self.agents_config['supervisor_agent'],
 			verbose=True,
+			allow_delegation=True,  # Enable delegation to other agents
+			max_iterations=10,      # Allow multiple iterations for complex workflows
 			**self.get_watson_config(),
-			planning = True
+			planning=True
 		)
 
 	@agent

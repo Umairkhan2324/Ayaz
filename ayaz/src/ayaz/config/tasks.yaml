@@ -1,15 +1,29 @@
 orchestrate_workflow:
   description: >
-    Interpret the user's request (the {Action}) and decide the necessary steps
-    for successful completion. Identify which agents need to be involved,
-    in what sequence, and how they should be invoked. Oversee the entire
-    process, ensuring that each agent performs its task at the right time
-    and that the outcome meets the user's requirements.
+    As the primary orchestrator, you will:
+    1. Receive and analyze the user's request ({Action})
+    2. Create a step-by-step plan to fulfill the request
+    3. Determine which agents need to be involved and in what sequence
+    4. Coordinate the execution of tasks between agents
+    5. Ensure all steps are completed successfully
+    6. Provide a summary of actions taken and results achieved
+
+    You have access to these specialized agents:
+    - email_processor: For email analysis and communication
+    - calendar_manager: For scheduling and calendar management
+    - document_manager: For document creation and management
+    - spreadsheet_manager: For data tracking and spreadsheet updates
+
+    Based on the user's request, create and execute an appropriate workflow using
+    these agents. Ensure each agent is used for its specialized purpose and that
+    the workflow is efficient and logical.
   expected_output: >
-    A comprehensive plan or set of instructions detailing which tasks to run
-    and which agents to invoke, including any relevant parameters or data. 
-    The final output should confirm that all required actions have been
-    completed and provide any relevant follow-up information to the user.
+    A detailed execution report including:
+    1. The interpreted user request
+    2. The workflow plan created
+    3. The agents involved and their roles
+    4. The sequence of operations performed
+    5. The final outcome and any follow-up actions needed
   agent: supervisor_agent
 
 process_email:
