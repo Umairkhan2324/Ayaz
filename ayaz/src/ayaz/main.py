@@ -29,128 +29,121 @@ warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 # Replace with inputs you want to test with, it will automatically
 # interpolate any tasks and agents information
 
-def get_user_credentials() -> Dict[str, str]:
+def get_user_input() -> Dict[str, str]:
     """
-    Get user email and authentication details.
+    Get all required inputs from the user at runtime.
     Returns:
-        Dict containing user credentials
+        Dict containing all user inputs and credentials
     """
-    print("\n=== User Authentication ===")
-    email = input("Please enter your email: ").strip()
-    password = getpass.getpass("Please enter your password: ").strip()
+    print("\n=== User Information ===")
+    
+    # Get email
+    while True:
+        email = input("Email: ").strip()
+        if '@' in email and '.' in email:
+            break
+        print("Please enter a valid email address.")
+    
+    # Get password/auth token
+    auth_token = getpass.getpass("Password/Auth Token: ").strip()
+    
+    # Get action
+    print("\n=== Task Description ===")
+    print("Examples of what you can ask:")
+    print("- Schedule a team meeting for next Tuesday at 2 PM")
+    print("- Process all unread emails from yesterday")
+    print("- Create a project proposal document")
+    print("- Update the Q4 budget spreadsheet")
+    print("- Any other task you need help with")
+    
+    action = input("\nWhat would you like me to do? ").strip()
+    
+    # Get any additional context if needed
+    print("\nAny additional details or requirements? (Optional, press Enter to skip)")
+    context = input("Additional context: ").strip()
     
     return {
         "email": email,
-        "auth_token": password  # In a real application, you might want to handle this more securely
+        "auth_token": auth_token,
+        "action": action,
+        "context": context if context else None
     }
 
-def get_user_action() -> str:
-    """
-    Get the action that the user wants to perform.
-    Returns:
-        String containing the user's requested action
-    """
-    print("\n=== Action Input ===")
-    print("What would you like me to do? Examples:")
-    print("1. Schedule a meeting with the team")
-    print("2. Process emails from yesterday")
-    print("3. Create a document for project X")
-    print("4. Update the project spreadsheet")
-    
-    action = input("\nPlease describe your request: ").strip()
-    return action
-
-def run(credentials: Optional[Dict[str, str]] = None, action: Optional[str] = None):
-    """
-    Run the crew with the given credentials and action.
-    
-    Args:
-        credentials: Optional dictionary containing user credentials
-        action: Optional string containing the user's requested action
-    """
-    if credentials is None:
-        credentials = get_user_credentials()
-    
-    if action is None:
-        action = get_user_action()
-    
-    inputs = {
-        'current_year': str(datetime.now().year),
-        'action': action,
-        'user_email': credentials['email'],
-        'auth_token': credentials['auth_token'],
-        'model': MODEL,
-        'watsonx_url': WATSONX_URL,
-        'watsonx_apikey': WATSONX_APIKEY,
-        'watsonx_project_id': WATSONX_PROJECT_ID
-    }
-    
-    print("\n=== Starting Workflow ===")
-    print(f"Processing request: {action}")
-    print(f"Using Watson model: {MODEL}")
-    
+def run():
+    """Run the crew with user inputs"""
     try:
+        # Get user inputs
+        user_inputs = get_user_input()
+        
+        # Prepare inputs for the crew
+        inputs = {
+            'current_year': str(datetime.now().year),
+            'action': user_inputs['action'],
+            'user_email': user_inputs['email'],
+            'auth_token': user_inputs['auth_token']
+        }
+        
+        # Add context if provided
+        if user_inputs['context']:
+            inputs['context'] = user_inputs['context']
+        
+        print("\n=== Starting Workflow ===")
+        print(f"Processing request: {user_inputs['action']}")
+        
+        # Run the crew
         result = Ayaz().crew().kickoff(inputs=inputs)
+        
         print("\n=== Workflow Complete ===")
         print(result)
+        
+    except KeyboardInterrupt:
+        print("\n\nOperation cancelled by user.")
+        sys.exit(0)
     except Exception as e:
         print("\n=== Error ===")
-        raise Exception(f"An error occurred while running the crew: {e}")
+        print(f"An error occurred: {str(e)}")
+        sys.exit(1)
 
 def train():
-    """
-    Train the crew for a given number of iterations.
-    """
-    credentials = get_user_credentials()
-    action = get_user_action()
-    
-    inputs = {
-        "action": action,
-        "user_email": credentials['email'],
-        "auth_token": credentials['auth_token']
-    }
-    
+    """Train the crew with user inputs"""
     try:
-        Ayaz().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
-    except Exception as e:
-        raise Exception(f"An error occurred while training the crew: {e}")
-
-def replay():
-    """
-    Replay the crew execution from a specific task.
-    """
-    credentials = get_user_credentials()
-    action = get_user_action()
-    
-    try:
-        Ayaz().crew().replay(task_id=sys.argv[1], action=action)
-    except Exception as e:
-        raise Exception(f"An error occurred while replaying the crew: {e}")
-
-def test():
-    """
-    Test the crew execution and returns the results.
-    """
-    credentials = get_user_credentials()
-    action = get_user_action()
-    
-    inputs = {
-        "action": action,
-        "user_email": credentials['email'],
-        "auth_token": credentials['auth_token'],
-        "model": MODEL
-    }
-    
-    try:
-        Ayaz().crew().test(
-            n_iterations=int(sys.argv[1]), 
-            openai_model_name=MODEL,  # Use the model from .env
-            inputs=inputs
+        user_inputs = get_user_input()
+        Ayaz().crew().train(
+            n_iterations=int(sys.argv[2]),
+            filename=sys.argv[3],
+            inputs=user_inputs
         )
     except Exception as e:
-        raise Exception(f"An error occurred while testing the crew: {e}")
+        print(f"Training error: {str(e)}")
+        sys.exit(1)
+
+def replay():
+    """Replay the crew with user inputs"""
+    try:
+        user_inputs = get_user_input()
+        Ayaz().crew().replay(
+            task_id=sys.argv[2],
+            inputs=user_inputs
+        )
+    except Exception as e:
+        print(f"Replay error: {str(e)}")
+        sys.exit(1)
+
+def test():
+    """Test the crew with user inputs"""
+    try:
+        user_inputs = get_user_input()
+        Ayaz().crew().test(
+            n_iterations=int(sys.argv[2]),
+            inputs=user_inputs
+        )
+    except Exception as e:
+        print(f"Test error: {str(e)}")
+        sys.exit(1)
 
 if __name__ == "__main__":
+    warnings.filterwarnings("ignore")
+    
     if len(sys.argv) > 1:
         command = sys.argv[1].lower()
         if command == "train":
