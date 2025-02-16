@@ -46,7 +46,8 @@ class Ayaz():
 		return Agent(
 			config=self.agents_config['supervisor_agent'],
 			verbose=True,
-			**self.get_watson_config()
+			**self.get_watson_config(),
+			planning = True
 		)
 
 	@agent
