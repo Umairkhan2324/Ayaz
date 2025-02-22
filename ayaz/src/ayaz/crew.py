@@ -2,19 +2,26 @@ from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 import os
 from dotenv import load_dotenv
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Load environment variables
 load_dotenv()
 
-# Get Watson configurations from environment variables
+# Get Gemini configurations
 MODEL = os.getenv('MODEL')
-WATSONX_URL = os.getenv('WATSONX_URL')
-WATSONX_APIKEY = os.getenv('WATSONX_APIKEY')
-WATSONX_PROJECT_ID = os.getenv('WATSONX_PROJECT_ID')
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 
 # Validate required environment variables
-if not all([MODEL, WATSONX_URL, WATSONX_APIKEY, WATSONX_PROJECT_ID]):
-	raise ValueError("Missing required Watson environment variables in .env file")
+if not all([MODEL, GOOGLE_API_KEY]):
+	raise ValueError("Missing required Gemini environment variables in .env file")
+
+# Initialize Gemini LLM
+llm = ChatGoogleGenerativeAI(
+	model=MODEL,
+	google_api_key=GOOGLE_API_KEY,
+	temperature=0.7,
+	convert_system_message_to_human=True
+)
 
 # If you want to run a snippet of code before or after the crew starts, 
 # you can use the @before_kickoff and @after_kickoff decorators
@@ -30,13 +37,11 @@ class Ayaz():
 	agents_config = 'config/agents.yaml'
 	tasks_config = 'config/tasks.yaml'
 
-	def get_watson_config(self):
-		"""Returns Watson configuration for agents"""
+	def get_llm_config(self):
+		"""Returns LLM configuration for agents"""
 		return {
-			'llm_model': MODEL,
-			'watsonx_url': WATSONX_URL,
-			'watsonx_apikey': WATSONX_APIKEY,
-			'watsonx_project_id': WATSONX_PROJECT_ID
+			'llm': llm,
+			'verbose': True
 		}
 
 	# If you would like to add tools to your agents, you can learn more about it here:
@@ -48,7 +53,7 @@ class Ayaz():
 			verbose=True,
 			allow_delegation=True,  # Enable delegation to other agents
 			max_iterations=10,      # Allow multiple iterations for complex workflows
-			**self.get_watson_config(),
+			**self.get_llm_config(),
 			planning=True
 		)
 
@@ -57,7 +62,7 @@ class Ayaz():
 		return Agent(
 			config=self.agents_config['email_processor'],
 			verbose=True,
-			**self.get_watson_config()
+			**self.get_llm_config()
 		)
 
 	@agent
@@ -65,7 +70,7 @@ class Ayaz():
 		return Agent(
 			config=self.agents_config['calendar_manager'],
 			verbose=True,
-			**self.get_watson_config()
+			**self.get_llm_config()
 		)
 
 	@agent
@@ -73,7 +78,7 @@ class Ayaz():
 		return Agent(
 			config=self.agents_config['document_manager'],
 			verbose=True,
-			**self.get_watson_config()
+			**self.get_llm_config()
 		)
 
 	@agent
@@ -81,7 +86,7 @@ class Ayaz():
 		return Agent(
 			config=self.agents_config['spreadsheet_manager'],
 			verbose=True,
-			**self.get_watson_config()
+			**self.get_llm_config()
 		)
 
 	# To learn more about structured task outputs, 
@@ -129,5 +134,5 @@ class Ayaz():
 			process=Process.sequential,
 			planning=True,
 			verbose=True,
-			**self.get_watson_config()
+			**self.get_llm_config()
 		)

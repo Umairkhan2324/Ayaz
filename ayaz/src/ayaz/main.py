@@ -12,15 +12,13 @@ from ayaz.crew import Ayaz
 # Load environment variables
 load_dotenv()
 
-# Get Watson configurations
+# Get Gemini configurations
 MODEL = os.getenv('MODEL')
-WATSONX_URL = os.getenv('WATSONX_URL')
-WATSONX_APIKEY = os.getenv('WATSONX_APIKEY')
-WATSONX_PROJECT_ID = os.getenv('WATSONX_PROJECT_ID')
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 
 # Validate required environment variables
-if not all([MODEL, WATSONX_URL, WATSONX_APIKEY, WATSONX_PROJECT_ID]):
-    raise ValueError("Missing required Watson environment variables in .env file")
+if not all([MODEL, GOOGLE_API_KEY]):
+    raise ValueError("Missing required Gemini environment variables in .env file")
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
